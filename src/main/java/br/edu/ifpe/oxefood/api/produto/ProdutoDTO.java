@@ -1,22 +1,30 @@
 package br.edu.ifpe.oxefood.api.produto;
 
-import br.edu.ifpe.oxefood.util.EntidadeAuditavel;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Data 
-@Table(name = "produto")
-public class Produto extends EntidadeAuditavel{
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProdutoDTO {
 
+    private Long id;
 
     private String codigo;
+ 
     private String titulo;
+
     private String descricao;
+
     private Double valorUnitario;
+
     private Integer tempoEntregaMinimo;
+  
     private Integer tempoEntregaMaximo;
 
-    
+
+
+
+
 }
