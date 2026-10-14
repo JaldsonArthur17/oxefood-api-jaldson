@@ -2,41 +2,70 @@ package br.edu.ifpe.oxefood.api.empresa;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class EmpresaService {
 
-    @Autowired
-    private EmpresaRepository repository;
+    private final EmpresaRepository repository;
 
+    public EmpresaService(EmpresaRepository repository) {
+        this.repository = repository;
+    }
+
+    public Empresa build(EmpresaDTO dto) {
+        Empresa empresa = null;
+
+      if (dto.getId() == null) { //Montado para o cadastro
+
+         empresa = new Empresa();
+
+      } else { //Consultado para a alteração
+
+         empresa = repository.findById(dto.getId()).get();
+      }
+        empresa.setSite(dto.getSite());
+        empresa.setCnpj(dto.getCnpj());
+        empresa.setInscricaoEstadual(dto.getInscricaoEstadual());
+        empresa.setNomeEmpresarial(dto.getNomeEmpresarial());
+        empresa.setNomeFantasia(dto.getNomeFantasia());
+        empresa.setFone(dto.getFone());
+        empresa.setFoneAlternativo(dto.getFoneAlternativo());
+
+
+        return empresa;
+    }
+
+    @Transactional
+    public Empresa cadastrar(EmpresaDTO dto) {
+
+        Empresa empresa = build(dto);
+        empresa.setHabilitado(true);
+        return repository.save(empresa);
+    }
     public List<Empresa> listar() {
+
         return repository.findAll();
     }
 
     public Empresa buscarPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
-    }
 
-    public Empresa salvar(Empresa empresa) {
-        return repository.save(empresa);
+        return repository.findById(id).get();
     }
+    @Transactional
+    public Empresa atualizar(EmpresaDTO dto) {
 
-    public Empresa atualizar(Long id, Empresa dados) {
-        Empresa empresa = buscarPorId(id);
-        empresa.setSite(dados.getSite());
-        empresa.setCnpj(dados.getCnpj());
-        empresa.setInscricaoEstadual(dados.getInscricaoEstadual());
-        empresa.setNomeEmpresarial(dados.getNomeEmpresarial());
-        empresa.setNomeFantasia(dados.getNomeFantasia());
-        empresa.setFone(dados.getFone());
-        empresa.setFoneAlternativo(dados.getFoneAlternativo());
-        return repository.save(empresa);
-    }
+    Empresa empresa = build(dto);
+    return repository.save(empresa);
+}
+    @Transactional
+    public void remover(Long id) {
 
-    public void deletar(Long id) {
-        repository.deleteById(id);
-    }
+    Empresa empresa = repository.findById(id).get();
+    empresa.setHabilitado(false);
+
+    repository.save(empresa);
+   }
 }

@@ -1,41 +1,76 @@
 package br.edu.ifpe.oxefood.api.produto;
 
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import br.edu.ifpe.oxefood.api.categoriaproduto.CategoriaProdutoRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProdutoService {
 
-    @Autowired
-    private ProdutoRepository repository;
+    private final ProdutoRepository repository;
 
+    private final CategoriaProdutoRepository categoriaProdutoRepository;
+
+
+    public ProdutoService(ProdutoRepository repository, CategoriaProdutoRepository categoriaProdutoRepository) {
+        this.repository = repository;
+        this.categoriaProdutoRepository = categoriaProdutoRepository;
+    }
+
+    public Produto build(ProdutoDTO dto) {
+        Produto produto = null;
+
+      if (dto.getId() == null) { //Montado para o cadastro
+
+         produto = new Produto();
+
+      } else { //Consultado para a alteração
+
+         produto = repository.findById(dto.getId()).get();
+      }
+        produto.setCategoria(categoriaProdutoRepository.findById(dto.getIdCategoria()).get());
+        produto.setCodigo(dto.getCodigo());
+        produto.setTitulo(dto.getTitulo());
+        produto.setDescricao(dto.getDescricao());
+        produto.setValorUnitario(dto.getValorUnitario());
+        produto.setTempoEntregaMaximo(dto.getTempoEntregaMaximo());
+        produto.setTempoEntregaMinimo(dto.getTempoEntregaMinimo());
+
+        return produto;
+    }
+
+    @Transactional
+    public Produto cadastrar(ProdutoDTO dto) {
+
+        Produto produto = build(dto);
+        produto.setHabilitado(true);
+        return repository.save(produto);
+    }
     public List<Produto> listar() {
+
         return repository.findAll();
     }
 
     public Produto buscarPorId(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-    }
 
-    public Produto salvar(Produto produto) {
-        return repository.save(produto);
+        return repository.findById(id).get();
     }
+    @Transactional
+    public Produto atualizar(ProdutoDTO dto) {
 
-    public Produto atualizar(Long id, Produto dados) {
-        Produto produto = buscarPorId(id);
-        produto.setCodigo(dados.getCodigo());
-        produto.setTitulo(dados.getTitulo());
-        produto.setDescricao(dados.getDescricao());
-        produto.setValorUnitario(dados.getValorUnitario());
-        produto.setTempoEntregaMinimo(dados.getTempoEntregaMinimo());
-        produto.setTempoEntregaMaximo(dados.getTempoEntregaMaximo());
-        return repository.save(produto);
-    }
+    Produto produto = build(dto);
+    return repository.save(produto);
+}
+    @Transactional
+    public void remover(Long id) {
 
-    public void deletar(Long id) {
-        repository.deleteById(id);
-    }
+    Produto produto = repository.findById(id).get();
+    produto.setHabilitado(false);
+
+    repository.save(produto);
+   }
 }

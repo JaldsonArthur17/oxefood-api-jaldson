@@ -2,8 +2,8 @@ package br.edu.ifpe.oxefood.api.empresa;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,40 +11,48 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/empresa")
 public class EmpresaController {
 
-    @Autowired
-    private EmpresaService service;
+    private final EmpresaService empresaService;
 
-    @GetMapping
-    public List<Empresa> listar() {
-        return service.listar();
-    }
-
-    @GetMapping("/{id}")
-    public Empresa buscar(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public EmpresaController(EmpresaService service) {
+        this.empresaService = service;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Empresa criar(@RequestBody Empresa empresa) {
-        return service.salvar(empresa);
+    public ResponseEntity<Empresa> cadastrar(@RequestBody @Valid EmpresaDTO dto) {
+
+        Empresa empresaCadastrada = empresaService.cadastrar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(empresaCadastrada);
+        
+    }
+    @GetMapping
+    public ResponseEntity<List<Empresa>> listar() {
+
+        return ResponseEntity.ok(empresaService.listar());
     }
 
-    @PutMapping("/{id}")
-    public Empresa atualizar(@PathVariable Long id, @RequestBody Empresa empresa) {
-        return service.atualizar(id, empresa);
-    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Empresa> buscarPorId(@PathVariable Long id) {
 
+        return ResponseEntity.ok(empresaService.buscarPorId(id));
+    }
+    @PutMapping
+    public ResponseEntity<Empresa> atualizar(@RequestBody EmpresaDTO dto) {
+
+	    Empresa empresaAtualizada = empresaService.atualizar(dto);
+	    return ResponseEntity.ok(empresaAtualizada);
+    }
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletar(@PathVariable Long id) {
-        service.deletar(id);
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+
+        empresaService.remover(id);
+        return ResponseEntity.noContent().build();
     }
 }

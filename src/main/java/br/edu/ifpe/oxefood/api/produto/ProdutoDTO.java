@@ -11,6 +11,8 @@ public class ProdutoDTO {
 
     private Long id;
 
+    private Long idCategoria;
+
     private String codigo;
  
     private String titulo;
@@ -22,9 +24,4 @@ public class ProdutoDTO {
     private Integer tempoEntregaMinimo;
   
     private Integer tempoEntregaMaximo;
-
-
-
-
-
 }
