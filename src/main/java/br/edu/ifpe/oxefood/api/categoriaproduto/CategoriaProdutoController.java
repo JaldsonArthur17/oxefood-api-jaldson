@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 @RestController 
-@RequestMapping("/api/categoriaProduto")
+@RequestMapping("/api/categoriaproduto")
 public class CategoriaProdutoController {
 
     private final CategoriaProdutoService categoriaProdutoService;
